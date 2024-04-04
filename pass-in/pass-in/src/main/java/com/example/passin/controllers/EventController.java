@@ -1,5 +1,7 @@
 package com.example.passin.controllers;
 
+import com.example.passin.dto.attendee.AttendeeIdDTO;
+import com.example.passin.dto.attendee.AttendeeRequestDTO;
 import com.example.passin.dto.attendee.AttendeesListResponseDTO;
 import com.example.passin.dto.event.EventIdDTO;
 import com.example.passin.dto.event.EventRequestDTO;
@@ -37,6 +39,13 @@ public class EventController {
     public ResponseEntity<AttendeesListResponseDTO> getEventAttendees(@PathVariable String eventId){
         AttendeesListResponseDTO attendeeList = this.attendeeService.getEventsAttendees(eventId);
         return ResponseEntity.ok(attendeeList);
+    }
+
+    @PostMapping("/{eventId}/attendees")
+    public ResponseEntity<AttendeeIdDTO> registerParticipant(@RequestBody AttendeeRequestDTO body, @PathVariable String eventId, UriComponentsBuilder uriComponentsBuilder){
+        AttendeeIdDTO attendeeIdDTO = this.eventService.registerAttendeeOnEvent(body, eventId);
+        var uri = uriComponentsBuilder.path("/attendees/{attendeeId}/badge").buildAndExpand(attendeeIdDTO.getAttendeeId()).toUri();
+        return ResponseEntity.created(uri).body(attendeeIdDTO);
     }
 
 }

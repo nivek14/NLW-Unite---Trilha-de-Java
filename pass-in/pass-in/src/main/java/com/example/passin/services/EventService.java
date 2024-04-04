@@ -44,7 +44,7 @@ public class EventService {
         return new EventIdDTO(newEvent.getId());
     }
 
-    private AttendeeIdDTO registerAttendeeOnEvent(AttendeeRequestDTO attendeeRequestDTO ,String eventId){
+    public AttendeeIdDTO registerAttendeeOnEvent(AttendeeRequestDTO attendeeRequestDTO, String eventId){
 
         this.attendeeService.verifyAttendeeSubscription(attendeeRequestDTO.email, eventId);
 
