@@ -26,6 +26,7 @@ public class AttendeeService {
 
     private final AttendeeRepository attendeeRepository;
     private final CheckinRepository checkinRepository;
+    private final CheckinService checkinService;
 
     public List<Attendee> getAllAttendeesFromEvent(String eventId){
         List<Attendee> attendeeList = this.attendeeRepository.findByEventId(eventId);
@@ -39,7 +40,7 @@ public class AttendeeService {
 
         // valida se para cada participante de um evento, possui checkin, se sim pega quando foi feito o checkin e senão retorna nulo
         List<AttendeeDetails> attendeeDetailsList = attendeeList.stream().map(attendee -> {
-            Optional<CheckIn> checkIn = this.checkinRepository.findByAttendeeId(attendee.getId());
+            Optional<CheckIn> checkIn = this.checkinService.getCheckIn(attendee.getId());
             LocalDateTime checkedInAt = checkIn.isPresent() ? checkIn.get().getCreatedAt() : null;
             return new AttendeeDetails(attendee.getId(), attendee.getName(), attendee.getEmail(), attendee.getCreatedAt(), checkedInAt);
         }).collect(Collectors.toList());
@@ -66,6 +67,15 @@ public class AttendeeService {
         AttendeeBadgeDTO attendeeBadgeDTO = new AttendeeBadgeDTO(attendee.getName(), attendee.getEmail(), uri, attendee.getEvent().getId());
 
         return new AttendeeBadgeResponseDTO(attendeeBadgeDTO);
+    }
+
+    public void checkInAttendee(String attendeeId){
+        Attendee attendee = this.getAttendee(attendeeId);
+        this.checkinService.checkInAttendee(attendee);
+    }
+
+    private Attendee getAttendee(String attendeeId){
+        return this.attendeeRepository.findById(attendeeId).orElseThrow(() -> new AttendeeNotFoundException("attendee not found with id:" + attendeeId));
     }
 
 }
